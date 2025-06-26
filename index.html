@@ -1,288 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Roll Dice Customizável</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roll Dice Customizável</title>
 
-<!-- Tailwind para estilo rápido -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- THREE.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/examples/js/loaders/GLTFLoader.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/examples/js/controls/OrbitControls.min.js"></script>
+  <!-- Tailwind (ok para protótipo) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-  :root {
-    --accent: #38bdf8;
-    --bg: #0f172a;
-    --text: #f1f5f9;
-    --neon-shadow: 0 0 8px var(--accent), 0 0 16px var(--accent);
-  }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  #canvasWrapper {
-    flex: 1;
-    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-  }
-  .neon {
-    color: var(--accent);
-    text-shadow: var(--neon-shadow);
-  }
-  #resultBox {
-    font-size: 5rem;
-    color: var(--accent);
-    text-shadow: var(--neon-shadow);
-    margin-top: 1rem;
-    text-align: center;
-    font-family: var(--custom-font, system-ui);
-  }
-</style>
+  <!-- THREE.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/examples/js/controls/OrbitControls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/examples/js/loaders/GLTFLoader.min.js"></script>
+
+  <style>
+    :root {
+      --accent:#38bdf8;
+      --bg:#0f172a;
+      --text:#f1f5f9;
+      --neon-shadow:0 0 8px var(--accent),0 0 16px var(--accent);
+    }
+    body{
+      background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;
+      min-height:100vh;display:flex;flex-direction:column;
+    }
+    #canvasWrapper{flex:1;background:radial-gradient(circle at center,#1e293b 0%,#0f172a 100%)}
+    .neon{color:var(--accent);text-shadow:var(--neon-shadow)}
+    #resultBox{
+      font-size:5rem;color:var(--accent);text-shadow:var(--neon-shadow);
+      margin-top:1rem;text-align:center;font-family:var(--custom-font,system-ui)
+    }
+  </style>
 </head>
 <body>
-  <header class="p-4 text-center text-2xl font-bold neon">Roll Dice Customizável</header>
-  
-  <main class="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
-    <section id="canvasWrapper" class="flex-1 rounded-xl shadow-lg overflow-hidden">
-      <canvas id="scene" class="w-full h-full"></canvas>
-    </section>
+<header class="p-4 text-center text-2xl font-bold neon">Roll Dice Customizável</header>
 
-    <section class="w-full lg:w-72 bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 space-y-4 shadow-lg flex flex-col">
-      <h2 class="text-xl font-semibold mb-2">🎛️ Configurar Rolagem</h2>
-      
-      <label class="block mb-1">Carregar fonte (.ttf ou .woff2)</label>
-      <input type="file" id="fontInput" accept=".ttf,.woff2" class="mb-4" />
+<main class="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
+  <section id="canvasWrapper" class="flex-1 rounded-xl shadow-lg overflow-hidden">
+    <canvas id="scene" class="w-full h-full"></canvas>
+  </section>
 
-      <label class="block mb-1">Carregar modelo 3D (.glb)</label>
-      <input type="file" id="modelInput" accept=".glb" class="mb-4" />
+  <section class="w-full lg:w-72 bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 space-y-4 shadow-lg flex flex-col">
+    <h2 class="text-xl font-semibold mb-2">🎛️ Configurar Rolagem</h2>
 
-      <label class="block mb-2">Tipo de dado</label>
-      <select id="dieType" class="w-full p-2 rounded bg-slate-700 text-white">
-        <option value="4">d4</option>
-        <option value="6" selected>d6</option>
-        <option value="8">d8</option>
-        <option value="10">d10</option>
-        <option value="12">d12</option>
-        <option value="20">d20</option>
-      </select>
+    <label class="block mb-1">Carregar fonte (.ttf ou .woff2)</label>
+    <input type="file" id="fontInput" accept=".ttf,.woff2" class="mb-4" />
 
-      <label class="block mt-4 mb-2">Quantidade</label>
-      <input id="dieQty" type="number" min="1" max="10" value="1" class="w-full p-2 rounded bg-slate-700 text-white" />
+    <label class="block mb-1">Carregar modelo 3D (.glb)</label>
+    <input type="file" id="modelInput" accept=".glb" class="mb-4" />
 
-      <label class="block mt-4 mb-2">Modificador (+ / –)</label>
-      <input id="modifier" type="number" value="0" class="w-full p-2 rounded bg-slate-700 text-white" />
+    <label class="block mb-2">Tipo de dado</label>
+    <select id="dieType" class="w-full p-2 rounded bg-slate-700 text-white">
+      <option value="4">d4</option><option value="6" selected>d6</option>
+      <option value="8">d8</option><option value="10">d10</option>
+      <option value="12">d12</option><option value="20">d20</option>
+    </select>
 
-      <div class="flex gap-2 mt-6">
-        <button id="addBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded" disabled>Adicionar</button>
-        <button id="rollBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded" disabled>Rolar 🎲</button>
-      </div>
+    <label class="block mt-4 mb-2">Quantidade</label>
+    <input id="dieQty" type="number" min="1" max="10" value="1"
+           class="w-full p-2 rounded bg-slate-700 text-white" />
 
-      <h3 class="text-lg font-medium mt-6">Pool atual</h3>
-      <ul id="pool" class="text-sm space-y-1"></ul>
+    <label class="block mt-4 mb-2">Modificador (+ / –)</label>
+    <input id="modifier" type="number" value="0"
+           class="w-full p-2 rounded bg-slate-700 text-white" />
 
-      <div id="resultBox" class="font-bold neon"></div>
-    </section>
-  </main>
+    <div class="flex gap-2 mt-6">
+      <button id="addBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded" disabled>Adicionar</button>
+      <button id="rollBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded" disabled>Rolar 🎲</button>
+    </div>
 
-  <footer class="p-4 text-center text-xs text-slate-400">
-    Feito com ❤ usando THREE.js • Totalmente customizável
-  </footer>
+    <h3 class="text-lg font-medium mt-6">Pool atual</h3>
+    <ul id="pool" class="text-sm space-y-1"></ul>
+
+    <div id="resultBox" class="font-bold neon"></div>
+  </section>
+</main>
+
+<footer class="p-4 text-center text-xs text-slate-400">Feito com ❤ usando THREE.js • Totalmente customizável</footer>
 
 <script>
-  let d20Mesh = null;
-  let currentFontName = null;
-  let dicePool = [];
+/* --- VARIÁVEIS --- */
+let d20Mesh = null;
+let dicePool = [];
 
-  // THREE.js Setup
-  const canvas = document.getElementById('scene');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 2, 4);
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+/* --- THREE SETUP --- */
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(window.devicePixelRatio);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45,1,0.1,100);
+camera.position.set(0,2,4);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.AmbientLight(0xffffff,0.8));
+const dirLight = new THREE.DirectionalLight(0xffffff,0.5);
+dirLight.position.set(3,5,2);scene.add(dirLight);
+function resize(){
+  const {clientWidth,w=clientWidth,clientHeight,h=clientHeight}=canvas.parentElement;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize);resize();
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  dirLight.position.set(3, 5, 2);
-  scene.add(dirLight);
-
-  function resize() {
-    const { clientWidth, clientHeight } = canvas.parentElement;
-    renderer.setSize(clientWidth, clientHeight, false);
-    camera.aspect = clientWidth / clientHeight;
-    camera.updateProjectionMatrix();
+/* --- FUNÇÕES DE GEOMETRIA --- */
+function geometryForFaces(f){
+  if(f===20){
+    if(d20Mesh) return d20Mesh.clone(true);
+    return new THREE.IcosahedronGeometry(1); // fallback se modelo não carregado
   }
-  window.addEventListener('resize', resize);
-  resize();
-
-  function geometryForFaces(faces) {
-    if(faces === 20 && d20Mesh) return d20Mesh.clone();
-    switch(faces) {
-      case 4: return new THREE.TetrahedronGeometry(1);
-      case 6: return new THREE.BoxGeometry(1,1,1);
-      case 8: return new THREE.OctahedronGeometry(1);
-      case 10: return new THREE.OctahedronGeometry(1);
-      case 12: return new THREE.DodecahedronGeometry(1);
-      default: return new THREE.BoxGeometry(1,1,1);
-    }
+  switch(f){
+    case 4: return new THREE.TetrahedronGeometry(1);
+    case 6: return new THREE.BoxGeometry(1,1,1);
+    case 8: return new THREE.OctahedronGeometry(1);
+    case 10:return new THREE.OctahedronGeometry(1);
+    case 12:return new THREE.DodecahedronGeometry(1);
+    default:return new THREE.BoxGeometry(1,1,1);
   }
+}
+const materialForDie=()=>new THREE.MeshStandardMaterial({color:0x38bdf8,metalness:0.3,roughness:0.4});
+const randInt=m=>Math.floor(Math.random()*m)+1;
 
-  function materialForDie() {
-    return new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.3, roughness: 0.4 });
+/* --- CLASSE DADO --- */
+class Die{
+  constructor(f){
+    this.faces=f;this.value=randInt(f);
+    this.geometry=geometryForFaces(f);
+    this.material=materialForDie();
+    this.mesh=new THREE.Mesh(this.geometry,this.material);
+    scene.add(this.mesh);
   }
-
-  class Die {
-    constructor(faces) {
-      this.faces = faces;
-      this.value = randInt(faces);
-      this.geometry = geometryForFaces(faces);
-      this.material = materialForDie();
-      this.mesh = new THREE.Mesh(this.geometry, this.material);
-      scene.add(this.mesh);
-    }
-    roll() {
-      this.value = randInt(this.faces);
-      this.targetRotation = new THREE.Euler(
-        Math.random() * Math.PI * 4,
-        Math.random() * Math.PI * 4,
-        Math.random() * Math.PI * 4
-      );
-      this.startRotation = this.mesh.rotation.clone();
-      this.startTime = performance.now();
-    }
-    update() {
-      if (!this.targetRotation) return;
-      const now = performance.now();
-      const t = Math.min((now - this.startTime) / 800, 1);
-      this.mesh.rotation.x = THREE.MathUtils.lerp(this.startRotation.x, this.targetRotation.x, t);
-      this.mesh.rotation.y = THREE.MathUtils.lerp(this.startRotation.y, this.targetRotation.y, t);
-      this.mesh.rotation.z = THREE.MathUtils.lerp(this.startRotation.z, this.targetRotation.z, t);
-      if (t === 1) this.targetRotation = null;
-    }
-    dispose() {
-      scene.remove(this.mesh);
-      if(this.geometry.dispose) this.geometry.dispose();
-      if(this.material.dispose) this.material.dispose();
-    }
+  roll(){
+    this.value=randInt(this.faces);
+    this.target=new THREE.Euler(Math.random()*12.6,Math.random()*12.6,Math.random()*12.6);
+    this.start=this.mesh.rotation.clone();this.t0=performance.now();
   }
-
-  function randInt(max) {
-    return Math.floor(Math.random() * max) + 1;
+  update(){
+    if(!this.target)return;
+    const t=Math.min((performance.now()-this.t0)/800,1);
+    this.mesh.rotation.x=THREE.MathUtils.lerp(this.start.x,this.target.x,t);
+    this.mesh.rotation.y=THREE.MathUtils.lerp(this.start.y,this.target.y,t);
+    this.mesh.rotation.z=THREE.MathUtils.lerp(this.start.z,this.target.z,t);
+    if(t===1)this.target=null;
   }
+  dispose(){scene.remove(this.mesh);this.geometry.dispose();this.material.dispose();}
+}
 
-  function refreshPoolList() {
-    const poolUL = document.getElementById('pool');
-    poolUL.innerHTML = dicePool.map((d,i) => 
-      `<li class="flex justify-between">
-        <span>${i+1}) d${d.faces}</span>
-        <button data-idx="${i}" class="text-red-400">×</button>
-      </li>`).join('');
-    poolUL.querySelectorAll('button').forEach(btn => {
-      btn.onclick = () => {
-        const idx = +btn.dataset.idx;
-        dicePool[idx].dispose();
-        dicePool.splice(idx, 1);
-        refreshPoolList();
-      };
-    });
-  }
-
-  function loadFont(file) {
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const fontDataUrl = e.target.result;
-      const oldStyle = document.getElementById('dynamicFontStyle');
-      if(oldStyle) oldStyle.remove();
-      const fontName = file.name.split('.').slice(0,-1).join('_').replace(/\s+/g,'_');
-      currentFontName = fontName;
-      const style = document.createElement('style');
-      style.id = 'dynamicFontStyle';
-      style.textContent = `
-        @font-face {
-          font-family: '${fontName}';
-          src: url('${fontDataUrl}');
-          font-weight: normal;
-          font-style: normal;
-        }
-      `;
-      document.head.appendChild(style);
-      document.documentElement.style.setProperty('--custom-font', `'${fontName}', system-ui`);
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function loadModel(file) {
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const arrayBuffer = e.target.result;
-      const loader = new THREE.GLTFLoader();
-      loader.parse(arrayBuffer, '', (gltf) => {
-        d20Mesh = gltf.scene;
-        enableButtons();
-      }, (err) => {
-        alert('Erro ao carregar modelo 3D');
-        console.error(err);
-      });
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  function enableButtons() {
-    document.getElementById('addBtn').disabled = false;
-    document.getElementById('rollBtn').disabled = false;
-  }
-
-  document.getElementById('fontInput').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    loadFont(file);
+/* --- UI --- */
+const poolUL=document.getElementById('pool');
+function refreshPool(){
+  poolUL.innerHTML=dicePool.map((d,i)=>`<li class="flex justify-between">
+    <span>${i+1}) d${d.faces}</span>
+    <button data-i="${i}" class="text-red-400">×</button>
+  </li>`).join('');
+  poolUL.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{const i=+b.dataset.i;dicePool[i].dispose();dicePool.splice(i,1);refreshPool();}
   });
-  document.getElementById('modelInput').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    loadModel(file);
-  });
-
-  document.getElementById('addBtn').onclick = () => {
-    const faces = +document.getElementById('dieType').value;
-    const qty = +document.getElementById('dieQty').value;
-    for(let i=0; i<qty; i++) {
-      const die = new Die(faces);
-      die.mesh.position.set((Math.random()-0.5)*2, (Math.random()-0.5)*2, (Math.random()-0.5)*2);
-      dicePool.push(die);
-    }
-    refreshPoolList();
-  };
-
-  document.getElementById('rollBtn').onclick = () => {
-    if(dicePool.length === 0) {
-      alert('Adicione pelo menos um dado!');
-      return;
-    }
-    dicePool.forEach(d => d.roll());
-    const mod = +document.getElementById('modifier').value;
-    setTimeout(() => {
-      const total = dicePool.reduce((sum, d) => sum + d.value, 0) + mod;
-      const modStr = mod ? (mod > 0 ? ` + ${mod}` : ` − ${Math.abs(mod)}`) : '';
-      document.getElementById('resultBox').textContent = `${total} (Σ ${dicePool.map(d => d.value).join(' + ')}${modStr})`;
-    }, 850);
-  };
-
-  function animate() {
-    requestAnimationFrame(animate);
-    dicePool.forEach(d => d.update());
-    controls.update();
-    renderer.render(scene, camera);
+}
+document.getElementById('addBtn').onclick=()=>{
+  const faces=+dieType.value,qty=+dieQty.value;
+  for(let i=0;i<qty;i++){
+    const d=new Die(faces);
+    d.mesh.position.set((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2);
+    dicePool.push(d);
   }
-  animate();
+  refreshPool();
+};
+document.getElementById('rollBtn').onclick=()=>{
+  if(!dicePool.length)return alert('Adicione ao menos um dado!');
+  dicePool.forEach(d=>d.roll());
+  const mod=+modifier.value;
+  setTimeout(()=>{
+    const total=dicePool.reduce((s,d)=>s+d.value,0)+mod;
+    const modStr=mod? (mod>0?` + ${mod}`:` − ${Math.abs(mod)}`):'';
+    resultBox.textContent=`${total} (Σ ${dicePool.map(d=>d.value).join(' + ')}${modStr})`;
+  },850);
+};
+
+/* --- LOAD FONT --- */
+fontInput.onchange=e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const url=ev.target.result,fontName=file.name.replace(/\.[^/.]+$/,'').replace(/\s+/g,'_');
+    document.head.querySelector('#dynamicFontStyle')?.remove();
+    const style=document.createElement('style');style.id='dynamicFontStyle';
+    style.textContent=`@font-face{font-family:'${fontName}';src:url('${url}');}`;
+    document.head.appendChild(style);
+    document.documentElement.style.setProperty('--custom-font',`'${fontName}',system-ui`);
+  };
+  reader.readAsDataURL(file);
+};
+
+/* --- LOAD MODEL --- */
+modelInput.onchange=e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    new THREE.GLTFLoader().parse(ev.target.result,'',(gltf)=>{
+      d20Mesh=gltf.scene;
+
+      /* 🔥 Normaliza tamanho & posição 🔥 */
+      const box=new THREE.Box3().setFromObject(d20Mesh);
+      const size=box.getSize(new THREE.Vector3()).length();
+      const scale=2/size;d20Mesh.scale.setScalar(scale);
+      box.getCenter(d20Mesh.position).multiplyScalar(-1);
+
+      addBtn.disabled=rollBtn.disabled=false;
+    },err=>alert('Erro no glb'));
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+/* --- LOOP --- */
+(function animate(){
+  requestAnimationFrame(animate);
+  dicePool.forEach(d=>d.update());
+  controls.update();renderer.render(scene,camera);
+})();
 </script>
 </body>
 </html>
